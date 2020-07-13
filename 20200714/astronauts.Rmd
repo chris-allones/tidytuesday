@@ -1,0 +1,23 @@
+---
+title: "Astronauts"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(tidytuesdayR)
+tuesdata <- tidytuesdayR::tt_load('2020-07-14')
+astronauts <- tuesdata$astronauts
+
+astronauts <- astronauts %>%
+        select(number, name, sex, nationality) %>%
+        distinct(number, .keep_all = TRUE) %>%
+        group_by(nationality) %>%
+        count(sex)
+
+ggplot(astronauts, aes(x = nationality, y = n, fill = sex)) +
+        geom_col(position = 'dodge') +
+        coord_flip()
+        
+```
+
