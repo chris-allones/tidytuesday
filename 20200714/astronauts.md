@@ -1,15 +1,41 @@
----
-title: "Astronauts"
-output:
-  github_document
----
+Astronauts
+================
 
-```{r}
+``` r
 #Load the needed libraries 
 library(tidyverse)
+```
+
+    ## ── Attaching packages ─────────────────────────────────────────────────────────────────────────────── tidyverse 1.3.0 ──
+
+    ## ✓ ggplot2 3.3.2     ✓ purrr   0.3.4
+    ## ✓ tibble  3.0.3     ✓ dplyr   1.0.0
+    ## ✓ tidyr   1.1.0     ✓ stringr 1.4.0
+    ## ✓ readr   1.3.1     ✓ forcats 0.5.0
+
+    ## ── Conflicts ────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+    ## x dplyr::filter() masks stats::filter()
+    ## x dplyr::lag()    masks stats::lag()
+
+``` r
 library(tidytuesdayR)
 library(maps)
+```
+
+    ## 
+    ## Attaching package: 'maps'
+
+    ## The following object is masked from 'package:purrr':
+    ## 
+    ##     map
+
+``` r
 library(CoordinateCleaner)
+```
+
+    ## Warning: package 'CoordinateCleaner' was built under R version 4.0.2
+
+``` r
 data(countryref)
 
 #Import a world map
@@ -24,7 +50,20 @@ countries <- as_tibble(countryref) %>%
 
 #Get the astronaut data set
 tuesdata <- tidytuesdayR::tt_load('2020-07-14')
+```
 
+    ## --- Compiling #TidyTuesday Information for 2020-07-14 ----
+
+    ## --- There is 1 file available ---
+
+    ## --- Starting Download ---
+
+    ## 
+    ##  Downloading file 1 of 1: `astronauts.csv`
+
+    ## --- Download complete ---
+
+``` r
 #Wrangle these data
 astronauts <- tuesdata$astronauts %>%
         select(number, name, sex, nationality) %>%
@@ -62,7 +101,11 @@ astronauts <- tuesdata$astronauts %>%
         left_join(countries) %>%
         select(c(nationality, sex, n, lat, long)) %>%
         arrange(sex)
+```
 
+    ## Joining, by = "nationality"
+
+``` r
 #Create visualization
 ggplot() +
         #Draw world map
@@ -91,3 +134,4 @@ ggplot() +
         coord_quickmap()
 ```
 
+![](astronauts_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
