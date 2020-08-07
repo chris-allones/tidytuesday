@@ -65,7 +65,7 @@ ggplot(country_totals_tidy) +
               panel.grid.major = element_blank(), 
               panel.grid.minor = element_blank(),
               panel.background = element_blank()) +
-        scale_fill_viridis_b(name = "Wind and Solar\nas Percentage of\nNet Production")
+        scale_fill_viridis_b(name = "Wind and Solar\nas Percentage of\nNet Production,\n2016 - 2018")
 ```
 
 ![](European-Energy_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
