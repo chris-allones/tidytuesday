@@ -314,3 +314,34 @@ of it is due to “Agriculture and Aquaculture” and “Biological Resource
 Use” (and to a slightly lesser degree “Natural System Modifications”).
 It’s also interesting how much loss occurred in South America prior to
 1900. So now let’s figure out how to tell this story visually.
+
+``` r
+#Define shared plot aesthetic
+theme_set(theme_minimal())
+
+centuries <- c("Before 1900", "After 1900")
+countries <- c("Not Madagascar", "Madagascar")
+
+plants %>% 
+        filter(!(is.na(year_last_seen))) %>%
+        mutate(pre1900 = if_else(year_last_seen == "Before 1900", 
+                                 "Before 1900", "After 1900"),
+               pre1900 = factor(pre1900, levels = centuries),
+               madagascar = if_else(country == "Madagascar", "Madagascar", 
+                                    NULL)
+                       ) %>%
+ggplot(aes(reorder(continent, desc(continent)), fill = madagascar)) +
+        geom_bar() +
+        facet_wrap(~ pre1900) +
+        coord_flip() +
+        labs(x = NULL,
+             y = NULL,
+             title = "Most Plant Extinction Has Occurred Since 1900",
+             subtitle = "Africa, especially Madagascar, has had a disproportionate share",
+             caption = "Source: International Union for Conservation of Nature"
+             ) +
+        theme(legend.position = "bottom",
+              legend.title = element_blank())
+```
+
+![](extinct_plants_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
