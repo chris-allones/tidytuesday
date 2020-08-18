@@ -10,10 +10,10 @@ Nature on extinct plants, including both species which are totally
 extinct and those which survive only under cultivation.
 
 As I explored the data on these 500 species (see my
-[notes](~/extinct_plants_notes.md)), a handful of stories leaped out at
-me that I thought could best be communicated through simple, bold
-graphics. The first is how much plant extinction has taken place in
-Africa and in Madagascar in particular.
+[notes](https://github.com/jamesphare/tidytuesday/blob/master/20200818/extinct_plants_notes.md),
+a handful of stories leaped out at me that I thought could best be
+communicated through simple, bold graphics. The first is how much plant
+extinction has taken place in Africa and in Madagascar in particular.
 
 ![](extinct_plants_files/figure-gfm/continent-1.png)<!-- -->
 
