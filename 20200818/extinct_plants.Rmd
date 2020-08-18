@@ -12,21 +12,35 @@ knitr::opts_chunk$set(echo = FALSE)
 
 library(tidyverse)
 
-plants <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-08-18/plants.csv')
-threats <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-08-18/threats.csv')
+plants <-
+        readr::read_csv(
+                'https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-08-18/plants.csv'
+        )
+threats <-
+        readr::read_csv(
+                'https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-08-18/threats.csv'
+        )
 ```
 
 ```{r include = FALSE}
 
 #Then wrangle the data
 
-year_levels <- c("Before 1900", "1900-1919", "1920-1939", "1940-1959", 
-                  "1960-1979", "1980-1999","2000-2020")
+year_levels <-
+        c(
+                "Before 1900",
+                "1900-1919",
+                "1920-1939",
+                "1940-1959",
+                "1960-1979",
+                "1980-1999",
+                "2000-2020"
+        )
 
-plants <- plants %>% 
+plants <- plants %>%
         mutate(year_last_seen = factor(year_last_seen, levels = year_levels))
 
-threats <- threats %>% 
+threats <- threats %>%
         mutate(year_last_seen = factor(year_last_seen, levels = year_levels)) %>%
         filter(threatened == 1)
 
@@ -37,11 +51,13 @@ theme_set(theme_minimal())
 centuries <- c("Before 1900", "After 1900")
 
 #And I need a dataframe with just Madagascar's plants in it
-mad_plants <- plants %>% 
+mad_plants <- plants %>%
         filter(!(is.na(year_last_seen))) %>%
-        mutate(pre1900 = if_else(year_last_seen == "Before 1900", 
-                                 "Before 1900", "After 1900"),
-               pre1900 = factor(pre1900, levels = centuries)) %>% 
+        mutate(
+                pre1900 = if_else(year_last_seen == "Before 1900",
+                                  "Before 1900", "After 1900"),
+                pre1900 = factor(pre1900, levels = centuries)
+        ) %>%
         filter(country == "Madagascar")
 ```
 
@@ -51,23 +67,25 @@ As I explored the data on these 500 species (see my [notes](https://github.com/j
 
 ```{r continent}
 
-plants %>% 
+plants %>%
         filter(!(is.na(year_last_seen))) %>%
-        mutate(pre1900 = if_else(year_last_seen == "Before 1900", 
-                                 "Before 1900", "After 1900"),
-               pre1900 = factor(pre1900, levels = centuries)
-                       ) %>% 
+        mutate(
+                pre1900 = if_else(year_last_seen == "Before 1900",
+                                  "Before 1900", "After 1900"),
+                pre1900 = factor(pre1900, levels = centuries)
+        ) %>%
         ggplot(aes(reorder(continent, desc(continent)))) +
         geom_bar() +
         geom_bar(data = mad_plants, aes(fill = "Madagascar")) +
-        facet_wrap(~ pre1900) +
+        facet_wrap( ~ pre1900) +
         coord_flip() +
-        labs(x = NULL,
-             y = NULL,
-             title = "Most Plant Extinction Has Occurred Since 1900",
-             subtitle = "Africa, especially Madagascar, has had a disproportionate share",
-             caption = "Source: International Union for Conservation of Nature" 
-             ) +
+        labs(
+                x = NULL,
+                y = NULL,
+                title = "Most Plant Extinction Has Occurred Since 1900",
+                subtitle = "Africa, especially Madagascar, has had a disproportionate share",
+                caption = "Source: International Union for Conservation of Nature"
+        ) +
         theme(legend.position = "bottom",
               legend.title = element_blank())
 ```
@@ -75,32 +93,36 @@ plants %>%
 Then when we focus on Madagascar as the site of so much loss, it becomes clear that much of this plant extinction took place during the mid-twentieth century, between 1920 and 1960, corresponding to the final decades of French colonial rule.
 
 ```{r century}
-mad_plants %>%  
-        group_by(year_last_seen) %>% 
-        count() %>%  
+
+mad_plants %>%
+        group_by(year_last_seen) %>%
+        count() %>%
         ggplot(aes(year_last_seen, n)) +
         geom_col() +
-        labs(x = "Year Last Seen",
-             y = NULL,
-             title = "Madagascar Lost the Most Plant Species During the Mid-Twentieth Century",
-             caption = "Source: International Union for Conservation of Nature" 
-             ) +
+        labs(
+                x = "Year Last Seen",
+                y = NULL,
+                title = "Madagascar Lost the Most Plant Species During the Mid-Twentieth Century",
+                caption = "Source: International Union for Conservation of Nature"
+        ) +
         theme(legend.position = "none")
 ```
 
 Finally, the causes of these extinctions are mainly habitat destruction for agriculture and aquaculture along with biological resource use. Natural system modifications (which includes things like dam construction and land reclamation) also contribute to extinctions.
 
 ```{r threats}
-threats %>% 
-        filter(country == "Madagascar") %>% 
+
+threats %>%
+        filter(country == "Madagascar") %>%
         ggplot(aes(reorder(threat_type, desc(threat_type)))) +
         geom_bar() +
         coord_flip() +
-        labs(x = NULL,
-             y = NULL,
-             title = "Habitat Destruction Has Caused the\nBulk of Madagascar's Plant Extinction",
-             caption = "Source: International Union for Conservation of Nature" 
-             ) +
+        labs(
+                x = NULL,
+                y = NULL,
+                title = "Habitat Destruction Has Caused the\nBulk of Madagascar's Plant Extinction",
+                caption = "Source: International Union for Conservation of Nature"
+        ) +
         theme(legend.position = "none")
 ```
 
