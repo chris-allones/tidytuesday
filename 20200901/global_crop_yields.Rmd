@@ -1,0 +1,42 @@
+---
+title: "Global Crop Yields"
+author: "James Hare"
+date: "9/1/2020"
+output: github_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+
+key_crop_yields <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-09-01/key_crop_yields.csv')
+```
+
+```{r tidy, include = FALSE}
+usa_grains <- key_crop_yields %>%
+        filter(Code == "USA") %>%
+        select(Year, `Wheat (tonnes per hectare)`, `Rice (tonnes per hectare)`, `Maize (tonnes per hectare)`, `Barley (tonnes per hectare)`) %>%
+        rename(Wheat = `Wheat (tonnes per hectare)`,
+               Rice = `Rice (tonnes per hectare)`,
+               Corn = `Maize (tonnes per hectare)`,
+               Barley = `Barley (tonnes per hectare)`) %>% 
+        pivot_longer(cols = Wheat:Barley,
+                     names_to = "Crop",
+                     values_to = "Tonnes per Hectare") %>% 
+        mutate("Tonnes per Acre" = (`Tonnes per Hectare` / 2.47105),
+               "Short Tons per Acre" = (`Tonnes per Acre` * 1.102311)) %>% 
+        select(Year, Crop, `Short Tons per Acre`)
+```
+        
+```{r plot, message = FALSE}
+theme_set(theme_minimal())
+ggplot(usa_grains, aes(Year, `Short Tons per Acre`, colour = Crop)) +
+        geom_point() +
+        geom_smooth(method = "lm", se = FALSE) +
+        labs(title = "Corn Is King!",
+             subtitle = "Grain Production in the United States, 1961 – 2018",
+             caption = "Source: Our World in Data") +
+        theme(legend.title = element_blank())
+```
+
+This week's [Tidy Tuesday](https://github.com/rfordatascience/tidytuesday/blob/fef6e442ac38e55edbdd91c1c19736f5ccdb9579/data/2020/2020-09-01/readme.md) presented *a lot* of data with many potential stories to tell. I decided to narrow in on grain production in the United States. I also decided to Americanize names and measurements because who really knows what tonnes of maize per hectare means? I used Commonwealth spellings in the code (which is available [here](global_crop_yields.Rmd)) just to be inconsistent.
