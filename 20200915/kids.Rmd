@@ -30,8 +30,9 @@ kids <-
 PK12_spending <- kids %>%
   filter(variable == "PK12ed") %>%
   group_by(state) %>%
-  mutate(percentage_change = (((inf_adj_perchild[year == 2016] - inf_adj_perchild[year == 1997])/
-                               inf_adj_perchild[year == 1997]) * 100)) %>%
+  mutate(percentage_change = (((inf_adj_perchild[year == 2016] - inf_adj_perchild[year == 1997]) /
+                                 inf_adj_perchild[year == 1997]
+  ) * 100)) %>%
   select(state, percentage_change)
 
 #modify code from https://github.com/kaerosen/tilemaps/blob/master/data-raw/governors.R to include DC
@@ -90,8 +91,8 @@ states <- spData::us_states[, c("NAME", "geometry")] %>%
       "WI",
       "WY"
     )
-  ) %>% 
-sf::st_transform(3857) %>%
+  ) %>%
+  sf::st_transform(3857) %>%
   mutate(tile_map = generate_map(geometry, square = FALSE, flat_topped = TRUE))
 
 states <- states %>%
@@ -122,11 +123,9 @@ ggplot(states) +
     fun.geometry = function(x)
       st_centroid(x)
   ) +
-  labs(
-    title = "Percentage Change in Pre-K to 12 Education Spending\nper Child by State from 1997 to 2016",
-    caption = "Adjusted for inflation\nSource: Urban Institute",
-    fill = "Percentage Change"
-  ) +
+  labs(title = "Percentage Change in Pre-K to 12 Education Spending\nper Child by State from 1997 to 2016",
+       caption = "Adjusted for inflation\nSource: Urban Institute",
+       fill = "Percentage Change") +
   scale_fill_viridis_b() +
   theme_void() +
   theme(legend.position = "bottom")
