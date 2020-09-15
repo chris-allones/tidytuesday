@@ -1,7 +1,7 @@
 ---
 title: "US Spending on Kids"
 author: "James P. Hare"
-date: "9/14/2020"
+date: "9/15/2020"
 output: github_document
 ---
 
@@ -123,12 +123,14 @@ ggplot(states) +
     fun.geometry = function(x)
       st_centroid(x)
   ) +
-  labs(title = "Pre-K to 12th Grade Education Spending by State",
-       subtitle = "Per child spending in 2016",
-       caption = "Source: Urban Institute") +
+  labs(
+    title = "Percent Change in Pre-K to 12 Education\nSpending by State from 1997 to 2016",
+    caption = "Adjusted for inflation\nSource: Urban Institute",
+    fill = "Percent Change"
+  ) +
   scale_fill_viridis_b() +
   theme_void() +
-  theme()
+  theme(legend.position = "bottom")
 ```
 
 
