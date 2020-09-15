@@ -30,10 +30,9 @@ kids <-
 PK12_spending <- kids %>%
   filter(variable == "PK12ed") %>%
   group_by(state) %>%
-  mutate(percent_change = (((inf_adj_perchild[year == 2016] /
-                               inf_adj_perchild[year == 1997]) - 1
-  ) * 100)) %>%
-  select(state, percent_change)
+  mutate(percentage_change = (((inf_adj_perchild[year == 2016] - inf_adj_perchild[year == 1997])/
+                               inf_adj_perchild[year == 1997]) * 100)) %>%
+  select(state, percentage_change)
 
 #modify code from https://github.com/kaerosen/tilemaps/blob/master/data-raw/governors.R to include DC
 #rewrite code to Tidyverse style
@@ -117,16 +116,16 @@ remove(PK12_spending)
 
 ```{r map}
 ggplot(states) +
-  geom_sf(aes(geometry = tile_map, fill = percent_change)) +
+  geom_sf(aes(geometry = tile_map, fill = percentage_change)) +
   geom_sf_text(
     aes(geometry = tile_map, label = abbreviation),
     fun.geometry = function(x)
       st_centroid(x)
   ) +
   labs(
-    title = "Percent Change in Pre-K to 12 Education Spending\nper Child by State from 1997 to 2016",
+    title = "Percentage Change in Pre-K to 12 Education Spending\nper Child by State from 1997 to 2016",
     caption = "Adjusted for inflation\nSource: Urban Institute",
-    fill = "Percent Change"
+    fill = "Percentage Change"
   ) +
   scale_fill_viridis_b() +
   theme_void() +
