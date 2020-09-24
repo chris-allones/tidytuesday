@@ -119,3 +119,56 @@ members %>%
 ```
 
 However, if we look at it based on total number of climbers, then the risk of death from altitude sickness is actually marginally worse for Sherpas than non-Sherpas, meaning that Sherpas are facing a comparable risk from the altitude as well as much greater risks from avalanches and other dangers.
+
+"What are the general trends in solo expeditions and the use of oxygen?"
+
+
+```{r}
+everest_solo <- expeditions %>%
+        filter(peak_id == "EVER") %>% 
+        mutate(solo = case_when((members == 1 & hired_staff == 0) ~ TRUE,
+                         (members != 1 | hired_staff != 0) ~ FALSE)) %>% 
+        group_by(year) %>% 
+        summarise(solo = sum(solo),
+                  total = n()) %>% 
+        mutate(solo_prop = solo / total)
+```
+
+```{r}
+everest_solo %>% 
+        ggplot(aes(year, solo)) +
+        geom_col()
+```
+
+```{r}
+everest_solo %>% 
+        ggplot(aes(year, solo_prop)) +
+        geom_col()
+```
+
+```{r}
+everest_o2 <- expeditions %>%
+        filter(peak_id == "EVER") %>%  
+        group_by(year) %>% 
+        summarise(o2 = sum(oxygen_used),
+                  total = n()) %>% 
+        mutate(o2_prop = o2 / total)
+```
+
+```{r}
+everest_o2 %>% 
+        ggplot(aes(year, o2)) +
+        geom_col()
+```
+
+```{r}
+everest_o2 %>% 
+        ggplot(aes(year, total)) +
+        geom_col()
+```
+
+```{r}
+everest_o2 %>% 
+        ggplot(aes(year, o2_prop)) +
+        geom_col()
+```
