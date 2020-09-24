@@ -61,3 +61,61 @@ members %>%
         coord_flip()
 ```
 
+"Are there characteristics of climbers associated with higher or lower death rates? For example, are Sherpas – presumably well-acclimated to high altitudes – less likely to suffer from AMS?"
+
+Let's tackle the example question first. First let's take a look at how Sherpas die on Everest. 
+
+```{r}
+# Hired staff here seems to be a rough stand-in for what is meant by Sherpa. 
+# I'm not sure what the one Belgian is doing on this list, but they're not among
+# the deaths, so I think we're pretty safe using this definition.
+
+members %>% 
+        filter(hired == TRUE) %>% 
+        group_by(citizenship) %>% 
+        count() %>% 
+        arrange(desc(n))
+```
+
+
+```{r}
+sherpa_deaths <- members %>% 
+        filter(peak_id =="EVER",
+               hired == TRUE,
+               died == TRUE) %>%
+        group_by(death_cause) %>% 
+        count() %>% 
+        arrange(desc(n))
+
+sherpa_deaths
+```
+
+Now let's look at how non-Sherpas die on Everest.
+
+```{r}
+non_sherpa_deaths <- members %>% 
+        # So non-Sherpa here means everyone except Nepalese citizens working as hired staff
+        filter(peak_id =="EVER",
+               died == TRUE,
+               hired == FALSE
+        ) %>% 
+        group_by(death_cause) %>% 
+        count() %>% 
+        arrange(desc(n))
+
+non_sherpa_deaths
+```
+
+So among deaths on Everest, Sherpas, who are required to spend much more time in dangerous zones, are much more likely to die in avalanches while non-Sherpas, who are presumably less well acclimated to the altitude, face a greater risk of AMS.
+
+Out of 120 Sherpa deaths on Everest, 56 (46.7%) died in avalanches while 9 (7.5%) died from AMS.
+
+Out of 186 non-Sherpa deaths, 27 (14.5%) died from AMS. The most common cause of death for non-Sherpas was falling. 54 of these climbers (29%) died from falls.
+
+```{r}
+members %>% 
+        group_by(hired) %>% 
+        count()
+```
+
+However, if we look at it based on total number of climbers, then the risk of death from altitude sickness is actually marginally worse for Sherpas than non-Sherpas, meaning that Sherpas are facing a comparable risk from the altitude as well as much greater risks from avalanches and other dangers.
