@@ -1,0 +1,61 @@
+---
+title: "Himalayan Climbing Expeditions"
+author: "James P. Hare"
+date: "9/23/2020"
+output: github_document
+---
+
+https://github.com/rfordatascience/tidytuesday/blob/master/data/2020/2020-09-22/readme.md
+
+https://www.alexcookson.com/post/how-dangerous-is-climbing-mount-everest/
+
+
+```{r setup}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+
+theme_set(theme_minimal())
+
+members <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-09-22/members.csv')
+expeditions <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-09-22/expeditions.csv')
+peaks <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-09-22/peaks.csv')
+```
+
+"What is the composition of expeditions? For example, how big do they tend to be and what proportion consist of hired staff?
+
+```{r}
+everest_expeditions <- expeditions %>% 
+        filter(peak_id == "EVER") %>% 
+        mutate(size_group = members + hired_staff) %>% 
+        group_by(year) %>% 
+        summarise(avg_staff = mean (hired_staff),
+                  avg_members = mean(members),
+                  avg_size = mean(size_group)
+                  ) %>% 
+        mutate(prop_staff = avg_staff / avg_size)
+```
+
+```{r}
+everest_expeditions %>% 
+        ggplot(aes(year, avg_size)) +
+        geom_col()
+```
+
+```{r}
+everest_expeditions %>% 
+        ggplot(aes(year, prop_staff)) +
+        geom_col()
+```
+
+"What injuries are associated with climbing Everest?"
+
+```{r}
+members %>% 
+        filter(peak_id == "EVER",
+               injured == TRUE) %>% 
+        ggplot(aes(injury_type)) +
+        geom_bar() +
+        coord_flip()
+```
+
