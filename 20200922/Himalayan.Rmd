@@ -53,9 +53,11 @@ everest_expeditions %>%
 ```{r}
 members %>% 
         filter(peak_id == "EVER",
-               injured == TRUE) %>% 
-        ggplot(aes(injury_type)) +
-        geom_bar() +
+               injured == TRUE) %>%
+        group_by(injury_type) %>% 
+        count() %>% 
+        ggplot(aes(x = reorder(injury_type, n), y = n)) +
+        geom_col() +
         coord_flip()
 ```
 
