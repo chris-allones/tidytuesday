@@ -7,7 +7,26 @@ output: github_document
 
 ```{r setup}
 knitr::opts_chunk$set(echo = TRUE)
+
 library(tidyverse)
+
+theme_set(theme_minimal())
+
 datasaurus <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-10-13/datasaurus.csv')
+```
+
+```{r}
+datasaurus %>% 
+        ggplot(aes(x, y, color = dataset)) +
+        geom_smooth(method = "lm", formula = y ~ x)
+```
+
+
+```{r}
+datasaurus %>% 
+        ggplot(aes(x, y, color = dataset)) +
+        geom_point() +
+        facet_wrap(~ dataset)
+        
 ```
 
