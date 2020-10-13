@@ -9,6 +9,7 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse)
+library(broom)
 
 theme_set(theme_minimal())
 
@@ -16,8 +17,37 @@ datasaurus <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience
 ```
 
 ```{r}
+glimpse(datasaurus)
+summary(datasaurus)
+```
+
+```{r}
+datasaurus %>%
+        group_by(dataset) %>% 
+        summarize(Min_X = min(x),
+                  Mean_X = mean(x),
+                  Mean_Y = mean(y),
+                  SD_X = sd(x),
+                  SD_Y = sd(y),
+                  Corr = cor(x, y)
+                  )
+        
+```
+
+```{r}
+datasaurus %>%
+        nest(data = -dataset) %>% 
+        mutate(model = map(data, ~ lm(y ~ x, data = .)),
+               tidied = map(model, tidy)
+        ) %>% 
+        unnest(tidied) %>% 
+        select(-data, -model)
+```
+
+```{r}
 datasaurus %>% 
         ggplot(aes(x, y, color = dataset)) +
+        geom_point() +
         geom_smooth(method = "lm", formula = y ~ x)
 ```
 
