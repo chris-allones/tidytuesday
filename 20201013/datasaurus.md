@@ -3,6 +3,15 @@ Datasaurus
 James P. Hare
 10/13/2020
 
+This week’s [Tidy
+Tuesday](https://github.com/rfordatascience/tidytuesday/blob/master/data/2020/2020-10-13/readme.md)
+speaks to the importance of visualization in data exploration. [Alberto
+Cairo](http://www.thefunctionalart.com/2016/08/download-datasaurus-never-trust-summary.html)
+created this simulated data set in order to demonstrate how misleading
+summary statistics can be and to show how useful visualization is in
+uncovering patterns in data. In this spirit, let’s start exploring this
+data set to see what we find.
+
     ## Rows: 1,846
     ## Columns: 3
     ## $ dataset <chr> "dino", "dino", "dino", "dino", "dino", "dino", "dino", "dino…
@@ -16,6 +25,13 @@ James P. Hare
     ##                     Mean   :54.27   Mean   :47.83510  
     ##                     3rd Qu.:67.28   3rd Qu.:71.81078  
     ##                     Max.   :98.29   Max.   :99.69468
+
+    ##  [1] "dino"       "away"       "h_lines"    "v_lines"    "x_shape"   
+    ##  [6] "star"       "high_lines" "dots"       "circle"     "bullseye"  
+    ## [11] "slant_up"   "slant_down" "wide_lines"
+
+We have 1,846 sets of x and y coordinates divided up into thirteen
+descriptive data sets.
 
     ## `summarise()` ungrouping output (override with `.groups` argument)
 
@@ -36,6 +52,12 @@ James P. Hare
     ## 12 wide_lines   54.3   47.8  16.8  26.9 -0.0666
     ## 13 x_shape      54.3   47.8  16.8  26.9 -0.0656
 
+These data sets have a lot in common. Specifically the x and y means, x
+and y standard deviations, and Pearson’s correlation coefficients are
+nearly identical.
+
+Let’s try fitting each data set to a linear model.
+
     ## # A tibble: 26 x 6
     ##    dataset term        estimate std.error statistic  p.value
     ##    <chr>   <chr>          <dbl>     <dbl>     <dbl>    <dbl>
@@ -51,6 +73,19 @@ James P. Hare
     ## 10 x_shape x            -0.105      0.135    -0.778 4.38e- 1
     ## # … with 16 more rows
 
+The intercept, slope and standard errors are all pretty much identical.
+Let’s plot these models and take a look.
+
 ![](datasaurus_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
+The models match up nicely, but there’s a lot of noise and there seem to
+be some strong unexplained patterns in the underlying data. Let’s look
+at each data set individually.
+
 ![](datasaurus_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+These plots are much more different than the summary statisitcs would
+suggest\!
+
+That’s all for this week. Check out the code on
+[GitHub](https://github.com/jamesphare/tidytuesday/blob/master/20201013/datasaurus.rmd).

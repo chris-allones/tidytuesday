@@ -17,10 +17,15 @@ theme_set(theme_void())
 datasaurus <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-10-13/datasaurus.csv')
 ```
 
+This week's [Tidy Tuesday](https://github.com/rfordatascience/tidytuesday/blob/master/data/2020/2020-10-13/readme.md) speaks to the importance of visualization in data exploration. [Alberto Cairo](http://www.thefunctionalart.com/2016/08/download-datasaurus-never-trust-summary.html) created this simulated data set in order to demonstrate how misleading summary statistics can be and to show how useful visualization is in uncovering patterns in data. In this spirit, let's start exploring this data set to see what we find.  
+
 ```{r}
 glimpse(datasaurus)
 summary(datasaurus)
+unique(datasaurus$dataset)
 ```
+
+We have 1,846 sets of x and y coordinates divided up into thirteen descriptive data sets. 
 
 ```{r}
 datasaurus %>%
@@ -34,6 +39,10 @@ datasaurus %>%
         
 ```
 
+These data sets have a lot in common. Specifically the x and y means, x and y standard deviations, and Pearson's correlation coefficients are nearly identical.
+
+Let's try fitting each data set to a linear model.
+
 ```{r}
 datasaurus %>%
         nest(data = -dataset) %>% 
@@ -44,6 +53,8 @@ datasaurus %>%
         select(-data, -model)
 ```
 
+The intercept, slope and standard errors are all pretty much identical. Let's plot these models and take a look.
+
 ```{r}
 datasaurus %>% 
         ggplot(aes(x, y, color = dataset)) +
@@ -52,6 +63,7 @@ datasaurus %>%
         theme(legend.position = 0)
 ```
 
+The models match up nicely, but there's a lot of noise and there seem to be some strong unexplained patterns in the underlying data. Let's look at each data set individually.
 
 ```{r}
 dino <- datasaurus %>%
@@ -79,3 +91,6 @@ dozen <- datasaurus %>%
 grid.arrange(dino, dozen, ncol = 2)
 ```
 
+These plots are much more different than the summary statisitcs would suggest!
+
+That's all for this week. Check out the code on [GitHub](https://github.com/jamesphare/tidytuesday/blob/master/20201013/datasaurus.rmd).
