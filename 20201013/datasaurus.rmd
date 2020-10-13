@@ -5,13 +5,14 @@ date: "10/13/2020"
 output: github_document
 ---
 
-```{r setup}
-knitr::opts_chunk$set(echo = TRUE)
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE)
 
 library(tidyverse)
 library(broom)
+library(gridExtra)
 
-theme_set(theme_minimal())
+theme_set(theme_void())
 
 datasaurus <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-10-13/datasaurus.csv')
 ```
@@ -24,8 +25,7 @@ summary(datasaurus)
 ```{r}
 datasaurus %>%
         group_by(dataset) %>% 
-        summarize(Min_X = min(x),
-                  Mean_X = mean(x),
+        summarize(Mean_X = mean(x),
                   Mean_Y = mean(y),
                   SD_X = sd(x),
                   SD_Y = sd(y),
@@ -48,15 +48,34 @@ datasaurus %>%
 datasaurus %>% 
         ggplot(aes(x, y, color = dataset)) +
         geom_point() +
-        geom_smooth(method = "lm", formula = y ~ x)
+        geom_smooth(method = "lm", formula = y ~ x) +
+        theme(legend.position = 0)
 ```
 
 
 ```{r}
-datasaurus %>% 
+dino <- datasaurus %>%
+        filter(dataset == "dino") %>%
+        ggplot(aes(x, y)) +
+        geom_point() +
+        theme(legend.position = "none") +
+        labs(title = "Each of These Plots Has Nearly Identical Summary Statistics",
+             subtitle = "Visualization is an essential component of data exploration",
+             caption = "")
+
+
+dozen <- datasaurus %>%
+        filter(dataset != "dino") %>%
         ggplot(aes(x, y, color = dataset)) +
         geom_point() +
-        facet_wrap(~ dataset)
-        
+        facet_wrap( ~ dataset) +
+        theme(legend.position = "none",
+              strip.text = element_blank())+
+        labs(title = "",
+             subtitle = "",
+             caption = "Simulated Data: Alberto Cairo")
+
+
+grid.arrange(dino, dozen, ncol = 2)
 ```
 
