@@ -56,4 +56,4 @@ ggplot() +
         
 ```
 
-Source code available on [GitHub]().
+Source code available on [GitHub](https://github.com/jamesphare/tidytuesday/blob/master/20201027/wind_turbines.Rmd).

@@ -10,4 +10,5 @@ provides data on wind turbines across Canada. Seems like it would be fun
 
 ![](wind_turbines_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
-Source code available on [GitHub]().
+Source code available on
+[GitHub](https://github.com/jamesphare/tidytuesday/blob/master/20201027/wind_turbines.Rmd).
