@@ -6,9 +6,74 @@ output: github_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE, message = FALSE)
 
 library(tidyverse)
 
-beer_awards <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-10-20/beer_awards.csv')
+beer_awards <-
+        readr::read_csv(
+                'https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-10-20/beer_awards.csv'
+        )
+
+us_population <-
+        read_csv(
+                'http://www2.census.gov/programs-surveys/popest/datasets/2010-2019/national/totals/nst-est2019-alldata.csv'
+        )
 ```
+
+I missed last week's [Tidy Tuesday](https://github.com/rfordatascience/tidytuesday/blob/master/data/2020/2020-10-20/readme.md), but it's about beer, so I wanted to come back to it. Many [lists](https://beerconnoisseur.com/articles/all-50-states-ranked-beer) celebrate California as the best state for beer, and there is no doubt that some delicious beer comes out of California. Indeed, between 1987 and 2020, California brewers have won more medals than any other state at the Great American Beer Festival.
+
+But California is also the largest state by population, so it's not surprising that there are many brewers there winning many medals. What if we give small states a chance and rank them by how may medals their brewers take home *per capita*? 
+
+It turns out that California drops to a still respectable number eleven, leaving behind a reshuffled top ten where undisputed powerhouses like Colorado and Wisconsin are joined by thinly populated states like Wyoming and Alaska.
+
+I'm not sure if counting medals---whether or not we adjust for population---is the best way to judge which state has the best beer. Clearly, the only fair way to resolve this dispute is to drink all the best beers from every state and then decide, so I guess I have my work cut out for me.
+
+```{r}
+#Add state abbreviations to population figures
+state_abbs <- bind_cols(state.abb, state.name) %>%
+        rename(abb = 1, NAME = 2)
+
+
+us_pop_2019 <- us_population %>%
+        select(NAME, POPESTIMATE2019) %>%
+        left_join(state_abbs) %>%
+        mutate(
+                abb = case_when(
+                        NAME == "District of Columbia" ~ "DC",
+                        NAME == "Puerto Rico" ~ "PR",
+                        TRUE ~ as.character(abb)
+                )
+        ) %>%
+        filter(!(is.na(abb)))
+
+#Count beer awards by state
+state_beer_awards <- beer_awards %>%
+        #some state abbreviations are not upper case. Fix that
+        mutate(state = str_to_upper(state)) %>%
+        group_by(state) %>%
+        count() %>%
+        #add population numbers and calculate awards per million
+        left_join(us_pop_2019, by = c("state" = "abb")) %>%
+        mutate(pop_millions = POPESTIMATE2019 / 1000000,
+               awards_per_million = n / pop_millions) %>%
+        select(state, NAME, awards_per_million) %>%
+        arrange(desc(awards_per_million)) %>%
+        head(10)
+```
+
+```{r}
+ggplot(state_beer_awards) +
+        geom_col(aes(reorder(NAME, awards_per_million), awards_per_million)) +
+        coord_flip() +
+        theme_minimal() +
+        labs(
+                title = "Top Ten Best States for Beer",
+                subtitle = "Great American Beer Festival medal winners by state, 1987–2020, adjusted for population",
+                x = NULL,
+                y = "Medals per Million Residents",
+                caption = "Sources: Great American Beer Festival, U.S. Census Bureau\njamesphare.org"
+        )
+```
+
+Source code on [GitHub](https://github.com/jamesphare/tidytuesday/blob/master/20201020/beer_awards.Rmd).
