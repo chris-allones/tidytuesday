@@ -8,14 +8,56 @@ output: github_document
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(tvthemes)
+library(extrafont)
+loadfonts()
 
 knitr::opts_chunk$set(echo = TRUE)
 avatar <-
         read_csv(
                 'https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-08-11/avatar.csv'
         )
-scene_description <-
-        read_csv(
-                'https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-08-11/scene_description.csv'
-        )
 ```
+
+
+```{r}
+avatar <- avatar %>%
+        filter(!is.na(character_words)) %>% 
+        select(id, book, book_num, chapter, chapter_num, character, character_words, imdb_rating) %>% 
+        mutate(character = case_when(
+                character == "Young Zuko" ~ "Zuko",
+                TRUE ~ as.character(character))
+               )
+```
+
+```{r}
+character_lines <- avatar %>%
+        group_by(book_num, chapter_num) %>%
+        count(character) %>% 
+        slice_max(n, n = 1)
+
+verbose <- character_lines %>% 
+        group_by(character) %>% 
+        count()
+        
+popular <- avatar %>%
+        select(book_num, chapter_num, imdb_rating) %>%
+        group_by(book_num, chapter_num) %>%
+        summarise(imdb = max(imdb_rating)) %>% 
+        right_join(character_lines) %>% 
+        group_by(character) %>% 
+        summarise(imdb_avg = mean(imdb, na.rm = TRUE))
+```
+
+```{r}
+ggplot(verbose) +
+        geom_col(aes(reorder(character, n), n)) +
+        coord_flip()
+```
+
+
+```{r}
+ggplot(popular) +
+        geom_col(aes(reorder(character, imdb_avg), imdb_avg)) +
+        coord_flip()
+```
+
