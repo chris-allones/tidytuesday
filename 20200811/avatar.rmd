@@ -6,12 +6,25 @@ output: github_document
 ---
 
 ```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE)
+
 library(tidyverse)
 library(tvthemes)
 library(extrafont)
+
 loadfonts()
 
-knitr::opts_chunk$set(echo = TRUE)
+theme_set(theme_avatar(title.font = "Slayer",
+                         text.font = "Slayer",
+                       title.size = 10,
+                       subtitle.size = 9,
+                       text.size = 8,
+                       axis.title.size = 9
+                       ))
+
+
 avatar <-
         read_csv(
                 'https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-08-11/avatar.csv'
@@ -48,16 +61,36 @@ popular <- avatar %>%
         summarise(imdb_avg = mean(imdb, na.rm = TRUE))
 ```
 
+For this [Tidy Tuesday entry](https://github.com/rfordatascience/tidytuesday/blob/master/data/2020/2020-08-11/readme.md), I'm looking at data from "Avatar: The Last Airbender". I was curious if the central character of each episode (based on number of lines spoken) correlated with the episode's IMDB rating. A first step was to determine the main character for each episode. If Aang speaks the most lines in nearly every episode then this exercise would be pretty pointless.
+
 ```{r}
 ggplot(verbose) +
         geom_col(aes(reorder(character, n), n)) +
-        coord_flip()
+        coord_flip() +
+        labs(
+                title = "Aang Had the Most Lines in the Most Episodes",
+                subtitle = "Most verbose characters by episode",
+                y = "Number of episodes",
+                x = NULL,
+                caption = "Source: Avery Robbins, Avatar Wiki\njamesphare.org"
+        )
 ```
 
+It turns out that---unsurprisingly---Aang speaks more lines in more episodes than anyone else (21 episodes), followed by Sokka (17), Katara (10), Zuko (7), and Azula (2). Another eight characters are the focus of one episode each. So how do the ratings turn out?
 
 ```{r}
 ggplot(popular) +
         geom_col(aes(reorder(character, imdb_avg), imdb_avg)) +
-        coord_flip()
+        coord_flip() +
+        labs(
+                title = "Aang's Episodes Are Not the Most Highly Rated",
+                subtitle = "Average IMDB ratings for each main character",
+                y = "Average IMDB Rating",
+                x = NULL,
+                caption = "Source: Avery Robbins, Avatar Wiki\njamesphare.org"
+        )
 ```
 
+It seems that Azula's episodes are very well liked while Jet's get the lowest ratings. Generally speaking, episodes that focus on characters who are less central to the series seem to be better liked. Of the major characters, Zuko gets the highest marks while Aang comes in last. 
+
+That's all for now. Take a look at my code on [GitHub](https://github.com/jamesphare/tidytuesday/blob/master/20200811/avatar.rmd).
