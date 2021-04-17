@@ -1,0 +1,80 @@
+---
+title: "US Post Offices"
+author: "James P. Hare"
+date: "4/16/2021"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(gganimate)
+
+theme_set(theme_void())
+
+post <-
+        read_csv(
+                'https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-04-13/post_offices.csv',
+                col_types = cols(
+                        .default = col_character(),
+                        county2 = col_logical(),
+                        county3 = col_logical(),
+                        established = col_double(),
+                        discontinued = col_double(),
+                        continuous = col_logical(),
+                        stamp_index = col_double(),
+                        id = col_double(),
+                        coordinates = col_logical(),
+                        duration = col_double(),
+                        gnis_match = col_logical(),
+                        gnis_feature_id = col_double(),
+                        gnis_latitude = col_double(),
+                        gnis_longitude = col_double(),
+                        gnis_elev_in_m = col_double(),
+                        gnis_dist = col_double(),
+                        latitude = col_double(),
+                        longitude = col_double()
+                )
+        )
+```
+
+```{r}
+post <- post %>%
+        select(established, discontinued, latitude, longitude) %>%
+        filter(established > 1788, !is.na(latitude), !is.na(longitude)) %>%
+        mutate(discontinued = case_when(is.na(discontinued) ~ 2002,
+                                        TRUE ~ as.double(discontinued))) %>%
+        filter(discontinued < 2003)
+
+start <- 1789
+end <- 2000
+```
+
+
+```{r}
+anim <- ggplot(post) +
+        coord_map(
+                projection = "albers",
+                parameters = c(29.5, 45.5),
+                xlim = c(-123, -69),
+                ylim = c(24.5, 50)
+        ) +
+        geom_point(
+                aes(x = longitude, y = latitude),
+                size = .01,
+                alpha = .7,
+                color = "blue"
+        ) +
+        transition_events(
+                start = as.integer(established),
+                end = as.integer(discontinued),
+                enter_length = as.integer(1),
+                exit_length = as.integer(1),
+                range = c(as.integer(start), as.integer(end))
+        ) +
+        labs(title = "US Post Offices in the Contiguous United States, 1789-2000\n{frame_time}",
+             caption = "jamesphare.org\nSource:Cameron Blevins and Richard W. Helbock")
+
+animate(anim, fps = 5, end_pause = 10)
+```
