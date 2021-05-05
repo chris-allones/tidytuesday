@@ -1,0 +1,56 @@
+---
+title: "Wealth and Income"
+author: "James P. Hare"
+date: "5/5/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(plotly)
+
+income_mean <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-02-09/income_mean.csv')
+```
+
+```{r, include=FALSE}
+income_mean <- income_mean %>%
+        filter(race == "All Races",
+               dollar_type == "2019 Dollars")
+
+data_ends <- income_mean %>% filter(year == 2019)
+```
+
+```{r, echo=FALSE}
+
+income_plot <- ggplot(income_mean,
+                      aes(year,income_dollars, color = income_quintile, text = paste(
+                                      "Year: ",
+                                      year,
+                                      "\n",
+                                      "Quintile: ",
+                                      income_quintile,
+                                      "\n",
+                                      "Income: ",
+                                      prettyNum(income_dollars, big.mark = ","),
+                                      "\n",
+                                      sep = ""
+                              ),
+                          group = income_quintile
+                              
+                      )) +
+        geom_line(aes(year, income_dollars, color = income_quintile)) +
+        geom_text(aes(label = income_quintile, x = year + 3, y = income_dollars), data = data_ends) +
+        scale_y_continuous(labels = scales::dollar) +
+        theme_minimal() +
+        theme(legend.position = "none") +
+        labs(title = "The Rich Keep Getting Richer",
+             subtitle = "Mean income by quintile, 1967 - 2019",
+             x = NULL,
+             y = "Mean Income (2019 dollars)",
+             caption = "Source: Urban Institute, US Census\njamesphare.org")
+       
+
+ggplotly(income_plot, tooltip = "text")
+```
