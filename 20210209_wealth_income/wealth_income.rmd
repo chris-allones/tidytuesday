@@ -6,51 +6,99 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE, message = FALSE)
 
+#load required libraries
 library(tidyverse)
 library(plotly)
 
+#import data
 income_mean <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-02-09/income_mean.csv')
 ```
 
-```{r, include=FALSE}
+```{r prepare}
+#filter down to the data I'm interested in for this plot
 income_mean <- income_mean %>%
         filter(race == "All Races",
                dollar_type == "2019 Dollars")
 
+#create data frame for labeling line ends
 data_ends <- income_mean %>% filter(year == 2019)
 ```
 
-```{r, echo=FALSE}
+For this Tidy Tuesday, I decided to try my hand at interactive visualization.
 
-income_plot <- ggplot(income_mean,
-                      aes(year,income_dollars, color = income_quintile, text = paste(
-                                      "Year: ",
-                                      year,
-                                      "\n",
-                                      "Quintile: ",
-                                      income_quintile,
-                                      "\n",
-                                      "Income: ",
-                                      prettyNum(income_dollars, big.mark = ","),
-                                      "\n",
-                                      sep = ""
-                              ),
-                          group = income_quintile
-                              
-                      )) +
+```{r visualize}
+
+#create static plot
+income_plot <- ggplot(
+        income_mean,
+        aes(
+                year,
+                income_dollars,
+                color = income_quintile,
+                #text for plotly tooltip
+                text = paste(
+                        "Year: ",
+                        year,
+                        "\n",
+                        "Quintile: ",
+                        income_quintile,
+                        "\n",
+                        "Income: $",
+                        prettyNum(income_dollars, big.mark = ","),
+                        "\n",
+                        sep = ""
+                ),
+                group = income_quintile
+                
+        )
+) +
         geom_line(aes(year, income_dollars, color = income_quintile)) +
-        geom_text(aes(label = income_quintile, x = year + 3, y = income_dollars), data = data_ends) +
+        geom_text(aes(label = income_quintile, x = year + 4, y = income_dollars), data = data_ends) +
+        #modify scale to stop label end text from clipping
+        scale_x_continuous(expand = c(.1, .1)) +
         scale_y_continuous(labels = scales::dollar) +
         theme_minimal() +
         theme(legend.position = "none") +
-        labs(title = "The Rich Keep Getting Richer",
-             subtitle = "Mean income by quintile, 1967 - 2019",
-             x = NULL,
-             y = "Mean Income (2019 dollars)",
-             caption = "Source: Urban Institute, US Census\njamesphare.org")
+        labs(
+                title = "The Rich Keep Getting Richer",
+                subtitle = "Mean income by quintile, 1967 - 2019",
+                x = NULL,
+                y = "Mean Income (2019 dollars)",
+                caption = "Source: Urban Institute, US Census"
+        )
        
+#wrap ggplot to make it interactive
+ggplotly(income_plot, tooltip = "text") %>%
+        #custom layout to include subtitle and caption - not supported by plotly
+        layout(
+                margin = list(
+                        l = 50,
+                        r = 50,
+                        t = 60,
+                        b = 75
+                ),
+                title = list(
+                        text = paste0(
+                                'The Rich Keep Getting Richer',
+                                '<br>',
+                                '<sup>',
+                                'Mean income by quintile, 1967 - 2019',
+                                '</sup>'
+                        )
+                ),
+                annotations = list(
+                        x = 1,
+                        y = -0.2,
+                        text = "Source: Urban Institute, US Census",
+                        font = list(size = 12),
+                        showarrow = F,
+                        xref = 'paper', x = 0,
+                        yref = 'paper', y = -0.3
+                )
+        )
 
-ggplotly(income_plot, tooltip = "text")
 ```
+
+The code is available in my [GitHub repository](https://github.com/jamesphare/tidytuesday/blob/master/20210209_wealth_income/wealth_income.rmd).
