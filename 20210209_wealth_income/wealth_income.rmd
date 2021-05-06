@@ -14,6 +14,7 @@ library(plotly)
 
 #import data
 income_mean <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-02-09/income_mean.csv')
+income_mean_high <- readr::read_csv('Data/EPI Data Library - Wages for Top 1.0, 0.1 and Bottom 90.csv')
 ```
 
 ```{r prepare}
@@ -24,6 +25,29 @@ income_mean <- income_mean %>%
 
 #create data frame for labeling line ends
 data_ends <- income_mean %>% filter(year == 2019)
+
+#tidy data
+income_mean_high <- pivot_longer(income_mean_high, 
+             cols = -"Date", 
+             names_to = "wage_group", 
+             values_to = "income_dollars")
+
+income_mean_high$income_dollars <- parse_number(income_mean_high$income_dollars)
+
+income_mean_high <- income_mean_high %>% 
+        mutate(wage_group = case_when(
+                wage_group == "Upper 0.1% average annual wages" ~ "Top 0.1%",
+                wage_group == "99th-100th average annual wages" ~ "Top 1%",
+                wage_group == "99th-99.9th average annual wages" ~ "99-99.9%",
+                wage_group == "top 5% average annual wages" ~ "Top 5%",
+                wage_group == "95th-99th average annual wages" ~"95-99%",
+                wage_group == "90th-99th average annual wages" ~ "90-99%",
+                wage_group == "90-95th average annual wages" ~ "90-95%",
+                wage_group == "Bottom 90% average annual wages" ~ "Bottom 90%"))
+
+income_mean_high$wage_group <- factor(income_mean_high$wage_group, 
+                                 levels = c("Top 0.1%", "Top 1%", "99-99.9%", "Top 5%",
+                                    "95-99%", "90-99%", "90-95%", "Bottom 90%"))
 ```
 
 For this Tidy Tuesday, I decided to try my hand at interactive visualization.
@@ -101,4 +125,75 @@ ggplotly(income_plot, tooltip = "text") %>%
 
 ```
 
+Addendum: I was asked on Twitter what this breakdown looked like within the top 5%. This information was not available within this data set, but I found more data from the Economic Policy Institute that allows us to answer this question.
+
+```{r visualize}
+
+#create static plot
+income_plot <- ggplot(
+        income_mean_high,
+        aes(
+                year,
+                income_dollars,
+                color = wage_group,
+                #text for plotly tooltip
+                text = paste(
+                        "Year: ",
+                        Date,
+                        "\n",
+                        "Wage Group: ",
+                        wage_group,
+                        "\n",
+                        "Income: $",
+                        prettyNum(income_dollars, big.mark = ","),
+                        "\n",
+                        sep = ""
+                ),
+                group = wage_group
+                
+        )
+) +
+        geom_line(aes(Date, income_dollars, color = wage_group)) +
+        scale_y_continuous(labels = scales::dollar) +
+        theme_minimal() +
+        labs(
+                title = "The Super-Rich Keep Getting Richer",
+                subtitle = "Mean income by wage group, 1947 - 2018",
+                x = NULL,
+                y = "Mean Income (2018 dollars)",
+                caption = "Source: Economic Policy Institute",
+                color = "Wage Group"
+        )
+       
+#wrap ggplot to make it interactive
+ggplotly(income_plot, tooltip = "text") %>%
+        #custom layout to include subtitle and caption - not supported by plotly
+        layout(
+                margin = list(
+                        l = 50,
+                        r = 50,
+                        t = 60,
+                        b = 75
+                ),
+                title = list(
+                        text = paste0(
+                                'The Super-Rich Keep Getting Richer',
+                                '<br>',
+                                '<sup>',
+                                'Mean income by wage group, 1947 - 2018',
+                                '</sup>'
+                        )
+                ),
+                annotations = list(
+                        x = 1,
+                        y = -0.2,
+                        text = "Source: Economic Policy Institute",
+                        font = list(size = 12),
+                        showarrow = F,
+                        xref = 'paper', x = 0,
+                        yref = 'paper', y = -0.3
+                )
+        )
+
+```
 The code is available in my [GitHub repository](https://github.com/jamesphare/tidytuesday/blob/master/20210209_wealth_income/wealth_income.rmd).
